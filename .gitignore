@@ -1,0 +1,12 @@
+.env
+.vscode
+
+
+*.pyc
+__pycache__/
+
+attend_ai_venv/
+
+.streamlit/
+
+dist/
