@@ -6,26 +6,46 @@ def teacher_screen():
     st.header("Teacher Screen")
     
     
-
-    if 'teacher_login_type' not in st.session_state or st.session_state['teacher_login_type'] == 'login':
+    if "teacher_data" in st.session_state:
+        teacher_dashboard()
+    elif 'teacher_login_type' not in st.session_state or st.session_state['teacher_login_type'] == 'login':
        teacher_screen_login()
     elif st.session_state['teacher_login_type'] == 'register':
         teacher_screen_register()
 
+def teacher_dashboard():
+    teacher_data = st.session_state['teacher_data']
+    st.write(f"Welcome, {teacher_data['name']}!")
+    st.write("This is your teacher dashboard.")
+    if st.button("Logout"):
+        del st.session_state['teacher_data']
+        st.session_state['teacher_login_type'] = 'login'
+        st.rerun()
 
-def create_teacher(teacher_username, teacher_name, teacher_password, teacher_password_confirm):
+def register_teacher(teacher_username, teacher_name, teacher_password, teacher_password_confirm):
     if not teacher_username or not teacher_name or not teacher_password or not teacher_password_confirm:
         return False, "All fields are required."
     if check_teacher_exists(teacher_username):
         return False, "Username already exists."
     if teacher_password != teacher_password_confirm:
         return False, "Passwords do not match."
-    try:
-        create_teacher(teacher_username, teacher_name, teacher_password)
+    
+    if create_teacher(teacher_username, teacher_name, teacher_password):
         st.session_state['teacher_login_type'] = 'login'
         return True, "Registration successful. You can now log in."
-    except Exception as e:
-        return False, "Unexpected error!"
+   
+def login_teacher(teacher_username, teacher_password):
+    if not teacher_username or not teacher_password:
+        st.error("Please enter both username and password.")
+        return False
+    teacher = teacher_login(teacher_username, teacher_password)
+
+    if teacher:
+        st.session_state.user_role = 'teacher'
+        st.session_state['teacher_data'] = teacher
+        st.session_state.is_logged_in = True   
+        return True
+    return False
 
 
 def teacher_screen_login():
@@ -43,7 +63,7 @@ def teacher_screen_login():
     btnc1, btnc2 = st.columns(2)
     with btnc1:
         if st.button("Login Now", key="teacherloginbtn"):
-            if teacher_login(teacher_username, teacher_password):
+            if login_teacher(teacher_username, teacher_password):
                 st.toast("Login successful!")
                 import time
                 time.sleep(1)
@@ -72,7 +92,7 @@ def teacher_screen_register():
     btnc1, btnc2 = st.columns(2)
     with btnc1:
         if st.button("Register Now", key="teacherloginbtn"):
-            success, message = create_teacher(teacher_username, teacher_name, teacher_password, teacher_password_confirm)
+            success, message = register_teacher(teacher_username, teacher_name, teacher_password, teacher_password_confirm)
             if success:
                 st.success(message)
                 import time 
