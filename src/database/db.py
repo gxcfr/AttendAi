@@ -13,6 +13,11 @@ def check_teacher_exists(username):
     response = supabase.table("teachers").select("username").eq("username", username).execute()
     return len(response.data) >0
 
+def create_student(new_name, face_embedding=None):
+    data = {'name': new_name, 'face_embedding':face_embedding}
+    response = supabase.table('students').insert(data).execute()
+    return response.data
+
 def create_teacher(username, name, password):
     data = {
         "username": username,

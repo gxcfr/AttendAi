@@ -5,7 +5,7 @@
 *.pyc
 __pycache__/
 
-attend_ai_venv/
+attend_ai/
 
 .streamlit/
 
